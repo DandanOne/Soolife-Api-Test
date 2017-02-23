@@ -30,7 +30,8 @@ class Init(object):
                 row_data = {}
                 for i in range(len(colnames)):
                     row_data[colnames[i]] = row[i]
-                self.e_data.append(row_data)
+                if int(row_data['test_it']) != 0:
+                    self.e_data.append(row_data)
 
     # 执行
     def main(self):
@@ -49,28 +50,31 @@ class Init(object):
                 for i in container:
                     i.join()
 
-                time.sleep(1)
+                time.sleep(2)
 
     # 调用
     def deal_request(self, r_args):
         method = r_args['method']
-        online = r_args['online_status']
+        online = int(r_args['online_status'])
+        request_nums = int(r_args['requests_nums'])
         url = r_args['url']
-        if method == 'get':
-            if online:
-                r = Test('app', self.platform, r_args['username'], r_args['password'])
+
+        for e in range(request_nums):
+            if method == 'get':
+                if online:
+                    r = Test('app', self.platform, r_args['username'], r_args['password'])
+                else:
+                    r = Test('app', self.platform)
+                r.get_request(url)
+                print(r.response_data)
+            elif method == 'post':
+                pass
+            elif method == 'put':
+                pass
+            elif method == 'delete':
+                pass
             else:
-                r = Test('app', self.platform)
-            r.get_request(url)
-            print(r.response_data)
-        elif method == 'post':
-            pass
-        elif method == 'put':
-            pass
-        elif method == 'delete':
-            pass
-        else:
-            print('暂不支持此种请求方式')
+                print('暂不支持此种请求方式')
 
 if __name__ == '__main__':
     start = Init('./list.xlsx','real')
