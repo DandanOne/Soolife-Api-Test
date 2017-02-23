@@ -77,9 +77,9 @@ class Init(object):
                 r.delete_request(url, data)
             else:
                 print('暂不支持此种请求方式')
-            print(r.response_data)
-            print(r.response_time)
+            print(r.response_data, end='\n')
+            print(r.response_time, end='\n')
 
 if __name__ == '__main__':
-    start = Init('./list.xlsx','test')
+    start = Init('./list.xlsx','real')
     start.main()
