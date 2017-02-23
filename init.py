@@ -40,6 +40,7 @@ class Init(object):
             for val in self.e_data:
                 print('Sterting Test API:' + val['remark'] + ' ;Address :'+val['url'])
 
+                # 多线程
                 container = []
                 for x in range(int(val['concurrent_num'])):
                     container.append(threading.Thread(target=self.deal_request, args=(val,)))
@@ -58,24 +59,27 @@ class Init(object):
         online = int(r_args['online_status'])
         request_nums = int(r_args['requests_nums'])
         url = r_args['url']
+        data = r_args['data']
 
         for e in range(request_nums):
+            if online:
+                r = Test('app', self.platform, r_args['username'], r_args['password'])
+            else:
+                r = Test('app', self.platform)
+
             if method == 'get':
-                if online:
-                    r = Test('app', self.platform, r_args['username'], r_args['password'])
-                else:
-                    r = Test('app', self.platform)
                 r.get_request(url)
-                print(r.response_data)
             elif method == 'post':
-                pass
+                r.post_request(url, data)
             elif method == 'put':
-                pass
+                r.put_request(url, data)
             elif method == 'delete':
-                pass
+                r.delete_request(url, data)
             else:
                 print('暂不支持此种请求方式')
+            print(r.response_data)
+            print(r.response_time)
 
 if __name__ == '__main__':
-    start = Init('./list.xlsx','real')
+    start = Init('./list.xlsx','test')
     start.main()

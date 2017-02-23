@@ -76,19 +76,31 @@ class Test(object):
     def format_response(self, response):
         self.response_code = response.status_code
         self.response_data = dict(response.json())
+        self.response_time = int(response.elapsed.microseconds / 1000)
 
-
-    def get_request(self, api):
+    def get_request(self, api, data=''):
         'GET Request'
         req_url = self.build_url(api)
-        res = self.s.get(req_url, auth=(self.auth_key,self.auth_secret), headers=self.headers)
+        res = self.s.get(req_url, auth=(self.auth_key,self.auth_secret), headers=self.headers, allow_redirects=False)
         self.format_response(res)
 
 
     def post_request(self, api, data, type='json'):
         'Post Request'
         req_url = self.build_url(api)
-        res = self.s.post(req_url,data = json.dumps(data), auth=(self.auth_key,self.auth_secret), headers=self.headers)
+        res = self.s.post(req_url,data = data, auth=(self.auth_key,self.auth_secret), headers=self.headers)
+        self.format_response(res)
+
+    def put_request(self, api, data = ''):
+        'Put Request'
+        req_url = self.build_url(api)
+        res = self.s.put(req_url,data = data, auth=(self.auth_key,self.auth_secret), headers=self.headers)
+        self.format_response(res)
+
+    def delete_request(self, api, data = ''):
+        'Delete Request'
+        req_url = self.build_url(api)
+        res = self.s.delete(req_url, auth=(self.auth_key,self.auth_secret), headers=self.headers)
         self.format_response(res)
 
 if __name__ == '__main__':
