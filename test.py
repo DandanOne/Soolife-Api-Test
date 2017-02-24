@@ -53,11 +53,13 @@ class Test(object):
         'Login,Get the token'
         post = {'username':username,'password':password}
 
-        self.post_request('/account/login', post)
+        self.post_request('/account/login', json.dumps(post))
+
         if self.response_code == 200:
             self.login_info = self.response_data
             self.add_header('token', self.login_info.get('token',''))
-
+        else:
+            raise ValueError('登录失败')
 
     def add_header(self, key='', value=''):
         'Add Header'
@@ -109,6 +111,7 @@ if __name__ == '__main__':
         for i in range(100):
             t.get_request('/member/assets/coin')
             print(t.response_code)
+            print(t.response_data)
     except Exception as e:
         print(e)
     else:

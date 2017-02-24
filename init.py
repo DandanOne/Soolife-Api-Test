@@ -4,14 +4,18 @@ import sys
 import xlrd
 import threading
 import time
+import csv
+import os
+import datetime
 
 from test import Test
 
 class Init(object):
-    def __init__(self, file, platform):
+    def __init__(self, file, platform='test', csv_file=''):
 
         # 测试环境
         self.platform = platform
+        #self.csv_file = './log_csv.csv' if  not csv_file else csv_file
 
         # 读取列表
         data = xlrd.open_workbook(file)
@@ -36,8 +40,16 @@ class Init(object):
     # 执行
     def main(self):
         if self.e_data:
+            keys = list(self.e_data[0].keys())
+            keys.remove('test_it')
+            keys.extend(['response_data','response_time','response_code','test_time'])
+
             # 依次调用列表
             for val in self.e_data:
+                self.csv_file ='./csv/' + val['remark'] + '.csv'
+                if not os.path.isfile(self.csv_file):
+                    self.write_csv(header = keys)
+
                 print('Sterting Test API:' + val['remark'] + ' ;Address :'+val['url'])
 
                 # 多线程
@@ -58,6 +70,7 @@ class Init(object):
         method = r_args['method']
         online = int(r_args['online_status'])
         request_nums = int(r_args['requests_nums'])
+        concurrent_num = int(r_args['concurrent_num'])
         url = r_args['url']
         data = r_args['data']
 
@@ -77,9 +90,31 @@ class Init(object):
                 r.delete_request(url, data)
             else:
                 print('暂不支持此种请求方式')
-            print(r.response_data, end='\n')
-            print(r.response_time, end='\n')
+                exit(0)
+            print(r.response_code, end='\n')
+            #print(r.response_time, end='\n')
+            #print(r.response_data, end='\n')
+            self.write_csv(row = [url, method, data, request_nums, concurrent_num, online, \
+                                  r_args['username'], r_args['password'], r_args['remark'], \
+                                  r.response_data,r.response_time,r.response_code,str(int(time.time()))])
+
+    # 写测试记录
+    def write_csv(self, row=None, header=None):
+    	with open(self.csv_file, 'a') as c:
+    		writer = csv.writer(c, delimiter = '|')
+    		if header:
+    			writer.writerow(header)
+    		else:
+    			writer.writerow(row)
+
 
 if __name__ == '__main__':
-    start = Init('./list.xlsx','real')
-    start.main()
+    try:
+        start = Init('./list.xlsx', 'test')
+        start.main()
+    except Exception as e:
+        print(e)
+    else:
+        print('测试完成')
+    finally:
+        print('测试结束')
